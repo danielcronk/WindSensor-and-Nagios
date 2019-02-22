@@ -37,4 +37,4 @@ else:
     exit_code = 3
 
 print("%.2f MPH | 'Wind Speed'=%.2f;%.2f;%.2f;0.0;150.0" % (avgMPH,avgMPH,warn,crit)) #speed | performance data
-sys.exit(exit_code)
+sys.exit(exit_code) 
