@@ -1,5 +1,11 @@
 #!/usr/bin/python3
 
+#Created by: Daniel Cronk
+#Created on: 2/18/2019
+#Last modified on: 2/22/2019
+#Created for: Honda of America Mfg.
+#Purpose: Read arduino through serial port and send wind sensor data to Nagios Server.
+
 import serial
 import sys
 import time
