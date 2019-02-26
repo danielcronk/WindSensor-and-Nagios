@@ -1,40 +1,47 @@
 #!/usr/bin/python3
 
-import serial
+#Created by: Daniel Cronk
+#Created on: 2/18/2019
+#Last modified on: 2/26/2019
+#Created for: Honda of America Mfg.
+#Purpose: Read wind sensor data and send wind sensor data to Nagios Server.
+
 import sys
 import time
+from math import pow
+from mcp3208 import MCP3208
 
-port = '/dev/ttyACM0'
-baud = 9600
+#set up GPIO
+adc = MCP3208()
+tempPin = 0
+windPin = 1
 
-ser = serial.Serial(port,baud)
-time.sleep(1) #allow time to connect with serial
-warn = 1.00 #warning MPH
-crit = 15.00 #critical MPH
+warn = 6.00 #warning MPH
+crit = 3.00 #critical MPH
 
 i = 0
 MPH_list = [] #used to find average of wind speed
 while i < 5:
     try:
-        speed = ser.readline()
-        speed = speed.decode("utf-8")
-        MPH_list.append(float(speed))
+		rawMPH = float(adc.read(1))  
+		convertedMPH = pow(((rawMPH - 264.0) / 85.6814), 3.36814)
+        MPH_list.append(convertedMPH)
 
         i += 1
     except:
-        print('Failed to read Serial Monitor')
+        print('Failed to read wind sensor')
         sys.exit(3) #unknown exit status
 
 avgMPH = sum(MPH_list) / len(MPH_list) #average wind speed
 
-if avgMPH < warn:
+if avgMPH > warn:
     exit_code = 0
-elif avgMPH >= warn and avgMPH < crit:
+elif avgMPH <= warn and avgMPH > crit:
     exit_code = 1
-elif avgMPH >= crit:
+elif avgMPH <= crit:
     exit_code = 2
 else:
     exit_code = 3
 
-print("%.2f MPH | 'Wind Speed'=%.2f;%.2f;%.2f;0.0;150.0" % (avgMPH,avgMPH,warn,crit)) #speed | performance data
-sys.exit(exit_code) 
+print("%.2f MPH | 'Wind Speed'=%.2f;%.2f;%.2f;0.0;25.0" % (avgMPH,avgMPH,warn,crit)) #speed | performance data
+sys.exit(exit_code)
